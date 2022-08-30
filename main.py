@@ -45,8 +45,9 @@ while True:
 		num_continous = 0
 		newdir = False
 		os.chdir("/home/pi/camera-record")
+		print("Reset Reference Frame")
 		continue
-	
+
 	# compute the absolute difference between the current frame and
 	# first frame
 	frameDelta = cv2.absdiff(firstFrame, gray)
@@ -67,18 +68,21 @@ while True:
 		(x, y, w, h) = cv2.boundingRect(c)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 		text = "Occupied"
-	
+
 	if not newdir and text == "Occupied":
 		new_filename = f"/home/pi/camera-record/" + datetime.strftime(datetime.now(), "%I-%M-%S")
 		os.mkdir(new_filename)
 		os.chdir(new_filename)
 		newdir = True
-	elif text == "Unoccupied":
+		print("Occupied! New dir " + new_filename)
+	elif text == "Unoccupied" and newdir:
 		newdir = False
+		print("Unoccupied")
 		os.chdir("/home/pi/camera-record")
-	else:
+	elif newdir:
 		num_continuous += 1
-	
+		print(f"Frame {num_continuous}")
+
 	# draw the text and timestamp on the frame
 	cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
