@@ -107,9 +107,10 @@ while True:
 	elif text == "Unoccupied" and newdir:
 		# Text is unoccupied now, but we are still in the new directory, reset things to unoccupied
 		newdir = False
-		print("Unoccupied")
-		os.chdir("/home/pi/camera-record")
+		print("Unocupied")
 		num_continous = 0
+		os.chdir("/home/pi/camera-record")
+		
 	elif text == "Occupied" and newdir:
 		# We are still unoccupied and so still in the new directory
 		num_continuous += 1
