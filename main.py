@@ -1,3 +1,5 @@
+#!/home/pi/camera-record/venv/bin/python3
+
 from imutils.video import VideoStream
 import argparse
 from datetime import datetime
@@ -79,7 +81,7 @@ while True:
 	if frame is None:
 		break
 	
-	gray = set_up_reference()
+	gray = set_up_reference(frame)
 
 	# If this is the first frame, or we trigger a number of continuous occupied
 	# Reset the reference and continue
