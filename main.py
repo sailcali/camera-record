@@ -70,7 +70,7 @@ while True:
 		text = "Occupied"
 
 	if not newdir and text == "Occupied":
-		new_filename = f"/home/pi/camera-record/" + datetime.strftime(datetime.now(), "%I-%M-%S")
+		new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
 		os.mkdir(new_filename)
 		os.chdir(new_filename)
 		newdir = True
