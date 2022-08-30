@@ -66,8 +66,6 @@ else:
 firstFrame = None
 # i will cycle through 1000000 and reset to 0
 i = 0
-# Trigger for when we are in a new directory
-newdir = False
 # Only allow 100 frames to be captured before resetting reference frame
 num_continuous = 0
 
@@ -88,7 +86,7 @@ while True:
 	if firstFrame is None or num_continuous > 100:
 		firstFrame = gray
 		num_continuous = 0
-		newdir = False
+
 		os.chdir("/home/pi/camera-record")
 		print("Reset Reference Frame")
 		continue
@@ -97,22 +95,22 @@ while True:
 	
 	text, frame = determine_occupied(cnts, frame, args)
 	
-	if not newdir and text == "Occupied" and num_continuous > 3:
+	if text == "Occupied" and num_continuous == 4:
 		# we are now recently occupied. Create a new directory, set it to CWD, and print the name
 		new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
 		os.mkdir(new_filename)
 		os.chdir(new_filename)
-		newdir = True
 		print("Occupied! New dir " + new_filename)
-	elif text == "Unoccupied" and newdir:
-		# Text is unoccupied now, but we are still in the new directory, reset things to unoccupied
-		newdir = False
+		num_continuous += 1
+
+	elif text == "Unoccupied":
+		# Text is unoccupied now, reset things to unoccupied
 		print("Unoccupied")
 		num_continuous = 0
 		os.chdir("/home/pi/camera-record")
-		
+
 	elif text == "Occupied":
-		# We are still occupied and so still in the new directory
+		# We are occupied, but dont need to change directory
 		num_continuous += 1
 		print(f"Frame {num_continuous}")
 
@@ -121,7 +119,7 @@ while True:
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 	cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
 		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-	# show the frame and record if the user presses a key
+	# Record the frames
 	if text == "Occupied" and num_continuous > 3:
 		cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
 		cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
