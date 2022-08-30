@@ -120,7 +120,7 @@ while True:
 	cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
 		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 	# Record the frames
-	if text == "Occupied" and num_continuous > 3:
+	if text == "Occupied" and num_continuous > 4:
 		cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
 		cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
 		cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
