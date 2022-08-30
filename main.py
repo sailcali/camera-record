@@ -103,7 +103,7 @@ while True:
 		print("Occupied! New dir " + new_filename)
 		num_continuous += 1
 
-	elif text == "Unoccupied":
+	elif text == "Unoccupied" and num_continuous > 0:
 		# Text is unoccupied now, reset things to unoccupied
 		print("Unoccupied")
 		num_continuous = 0
