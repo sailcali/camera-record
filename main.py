@@ -97,7 +97,7 @@ while True:
 	
 	text, frame = determine_occupied(cnts, frame, args)
 	
-	if not newdir and text == "Occupied":
+	if not newdir and text == "Occupied" and num_continuous > 3:
 		# we are now recently occupied. Create a new directory, set it to CWD, and print the name
 		new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
 		os.mkdir(new_filename)
@@ -111,8 +111,8 @@ while True:
 		num_continuous = 0
 		os.chdir("/home/pi/camera-record")
 		
-	elif text == "Occupied" and newdir:
-		# We are still unoccupied and so still in the new directory
+	elif text == "Occupied":
+		# We are still occupied and so still in the new directory
 		num_continuous += 1
 		print(f"Frame {num_continuous}")
 
@@ -122,7 +122,7 @@ while True:
 	cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
 		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 	# show the frame and record if the user presses a key
-	if text == "Occupied":
+	if text == "Occupied" and num_continuous > 3:
 		cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
 		cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
 		cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
