@@ -87,7 +87,7 @@ while True:
 	# Reset the reference and continue
 	if firstFrame is None or num_continuous > 100:
 		firstFrame = gray
-		num_continous = 0
+		num_continuous = 0
 		newdir = False
 		os.chdir("/home/pi/camera-record")
 		print("Reset Reference Frame")
@@ -107,8 +107,8 @@ while True:
 	elif text == "Unoccupied" and newdir:
 		# Text is unoccupied now, but we are still in the new directory, reset things to unoccupied
 		newdir = False
-		print("Unocupied")
-		num_continous = 0
+		print("Unoccupied")
+		num_continuous = 0
 		os.chdir("/home/pi/camera-record")
 		
 	elif text == "Occupied" and newdir:
