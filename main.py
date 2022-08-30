@@ -46,8 +46,8 @@ while True:
 		newdir = False
 		os.chdir("/home/pi/camera-record")
 		continue
-    
-    # compute the absolute difference between the current frame and
+	
+	# compute the absolute difference between the current frame and
 	# first frame
 	frameDelta = cv2.absdiff(firstFrame, gray)
 	thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
@@ -78,8 +78,8 @@ while True:
 		os.chdir("/home/pi/camera-record")
 	else:
 		num_continuous += 1
-    
-    # draw the text and timestamp on the frame
+	
+	# draw the text and timestamp on the frame
 	cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 	cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
