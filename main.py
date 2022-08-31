@@ -22,7 +22,7 @@ class RollingAverage:
 		self.length += 1
 	
 	def average(self):
-		return self.numbers.sum() / self.length
+		return sum(self.numbers) / self.length
 
 
 def get_frame(vs, args):
