@@ -7,6 +7,23 @@ import imutils
 import time
 import cv2
 import os
+from collections import UserList
+
+class RollingAverage:
+	def __init__(self):
+		self.numbers = []
+		self.length = 0
+
+	def add(self, number):
+		if self.length > 100:
+			self.numbers.pop(0)
+			self.length -= 1
+		self.numbers.append(number)
+		self.length += 1
+	
+	def average(self):
+		return self.numbers.sum() / self.length
+
 
 def get_frame(vs, args):
 	# grab the current frame and initialize the occupied/unoccupied
@@ -36,18 +53,23 @@ def get_contours(firstFrame, gray):
 
 def determine_occupied(cnts, frame, args):
 	text = "Unoccupied"
+	max_contour = 0
 	# loop over the contours, add "occupied" if any contours are above the baseline
 	for c in cnts:
+		cnt_size = cv2.contourArea(c)
+		if max_contour < cnt_size:
+			max_contour = cnt_size
 		# if the contour is too small, ignore it
-		if cv2.contourArea(c) < args["min_area"]:
+		if cnt_size < args["min_area"]:
 			continue
 		# compute the bounding box for the contour, draw it on the frame,
 		# and update the text
-		print(cv2.contourArea(c))
+		print(cnt_size)
 		(x, y, w, h) = cv2.boundingRect(c)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 		text = "Occupied"
-	return text, frame
+	
+	return text, frame, max_contour
 
 
 # construct the argument parser and parse the arguments
@@ -69,6 +91,7 @@ firstFrame = None
 i = 0
 # Only allow 100 frames to be captured before resetting reference frame
 num_continuous = 0
+rolling_avg = RollingAverage()
 
 # loop over the frames of the video
 while True:
@@ -84,7 +107,9 @@ while True:
 
 	# If this is the first frame, or we trigger a number of continuous occupied
 	# Reset the reference and continue
-	if firstFrame is None or num_continuous > 100:
+	if firstFrame is None or num_continuous > 100 or rolling_avg.average > 700:
+		if rolling_avg.average > 700:
+			print(f"Rolling average at time {datetime.now()}")
 		firstFrame = gray
 		num_continuous = 0
 
@@ -94,8 +119,10 @@ while True:
 	
 	frameDelta, thresh, cnts = get_contours(firstFrame, gray)
 	
-	text, frame = determine_occupied(cnts, frame, args)
+	text, frame, max_contour = determine_occupied(cnts, frame, args)
 	
+	rolling_avg.add(max_contour)
+
 	if text == "Occupied" and num_continuous == 4:
 		# we are now recently occupied. Create a new directory, set it to CWD, and print the name
 		new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
