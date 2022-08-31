@@ -22,7 +22,10 @@ class RollingAverage:
 		self.length += 1
 	
 	def average(self):
-		return sum(self.numbers) / self.length
+		if self.length > 10:
+			return sum(self.numbers) / self.length
+		else:
+			return 600
 
 
 def get_frame(vs, args):
