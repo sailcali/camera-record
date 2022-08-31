@@ -43,6 +43,7 @@ def determine_occupied(cnts, frame, args):
 			continue
 		# compute the bounding box for the contour, draw it on the frame,
 		# and update the text
+		print(cv2.contourArea(c))
 		(x, y, w, h) = cv2.boundingRect(c)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 		text = "Occupied"
