@@ -107,8 +107,8 @@ while True:
 
 	# If this is the first frame, or we trigger a number of continuous occupied
 	# Reset the reference and continue
-	if firstFrame is None or num_continuous > 100 or rolling_avg.average > 700:
-		if rolling_avg.average > 700:
+	if firstFrame is None or num_continuous > 100 or rolling_avg.average() > 700:
+		if rolling_avg.average() > 700:
 			print(f"Rolling average at time {datetime.now()}")
 		firstFrame = gray
 		num_continuous = 0
