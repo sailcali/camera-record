@@ -26,6 +26,10 @@ class RollingAverage:
 			return sum(self.numbers) / self.length
 		else:
 			return 600
+	
+	def reset(self):
+		self.numbers = []
+		self.length = 0
 
 
 def get_frame(vs, args):
@@ -113,6 +117,7 @@ while True:
 	if firstFrame is None or num_continuous > 100 or rolling_avg.average() > 700:
 		if rolling_avg.average() > 700:
 			print(f"Rolling average at time {datetime.now()}")
+			rolling_avg.reset()
 		firstFrame = gray
 		num_continuous = 0
 
