@@ -35,12 +35,13 @@ class RollingAverage:
 def get_frame(vs, args=None):
 	# grab the current frame and initialize the occupied/unoccupied
 	# text
-	
+	frame = None
 	if args:
 		frame = vs.read()
 		frame = frame if args.get("video", None) is None else frame[1]
 	else:
-		frame = vs.frame
+		while frame is None:
+			frame = vs.frame
 	frame = imutils.resize(frame, width=500)
 	return frame
 
@@ -82,8 +83,9 @@ def determine_occupied(cnts, frame, args):
 	return text, frame, max_contour
 
 def record(mpeg):
-		# initialize the first frame in the video stream
+	# initialize the first frame in the video stream
 	firstFrame = None
+	frame = None
 	# i will cycle through 1000000 and reset to 0
 	i = 0
 	# Only allow 100 frames to be captured before resetting reference frame

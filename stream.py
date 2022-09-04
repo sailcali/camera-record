@@ -105,3 +105,5 @@ if __name__ == "__main__":
         camera.start_recording(output, format='mjpeg')
         t1 = threading.Thread(target=serve)
         t2 = threading.Thread(target=record, args=(output,))
+        t1.start()
+        t2.start()
