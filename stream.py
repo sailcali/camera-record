@@ -9,7 +9,9 @@ import logging
 import socketserver
 from threading import Condition
 from http import server
-from main import run_assessment
+import threading
+from main import record
+
 
 PAGE="""\
 <html>
@@ -74,7 +76,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
-                    run_assessment(frame=frame)
             except Exception as e:
                 logging.warning(
                     'Removed streaming client %s: %s',
@@ -88,15 +89,19 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-if __name__ == "__main__":
-    with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
-        output = StreamingOutput()
-        #Uncomment the next line to change your Pi's Camera rotation (in degrees)
-        #camera.rotation = 90
-        camera.start_recording(output, format='mjpeg')
+def serve():
         try:
             address = ('', 8000)
             server = StreamingServer(address, StreamingHandler)
             server.serve_forever()
         finally:
             camera.stop_recording()
+
+if __name__ == "__main__":
+    with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
+        output = StreamingOutput()
+        #Uncomment the next line to change your Pi's Camera rotation (in degrees)
+        #camera.rotation = 90
+        camera.start_recording(output, format='mjpeg')
+        t1 = threading.Thread(target=serve)
+        t2 = threading.Thread(target=record, args=(output,))
