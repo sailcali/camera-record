@@ -78,92 +78,95 @@ def determine_occupied(cnts, frame, args):
 	
 	return text, frame, max_contour
 
+def run_assessment(vs=None, frame=None):
+		
+	# initialize the first frame in the video stream
+	firstFrame = None
+	# i will cycle through 1000000 and reset to 0
+	i = 0
+	# Only allow 100 frames to be captured before resetting reference frame
+	num_continuous = 0
+	rolling_avg = RollingAverage()
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--video", help="path to the video file")
-ap.add_argument("-a", "--min-area", type=int, default=800, help="minimum area size")
-args = vars(ap.parse_args())
-# if the video argument is None, then we are reading from webcam
-if args.get("video", None) is None:
-	vs = VideoStream(src=0).start()
-	time.sleep(2.0)
-# otherwise, we are reading from a video file
-else:
-	vs = cv2.VideoCapture(args["video"])
+	# loop over the frames of the video
+	while True:
+		if frame == None:
+			frame = get_frame(vs, args)
+		
+		# if the frame could not be grabbed, then we have reached the end
+		# of the video
+		if frame is None:
+			break
+		
+		gray = set_up_reference(frame)
 
-# initialize the first frame in the video stream
-firstFrame = None
-# i will cycle through 1000000 and reset to 0
-i = 0
-# Only allow 100 frames to be captured before resetting reference frame
-num_continuous = 0
-rolling_avg = RollingAverage()
+		# If this is the first frame, or we trigger a number of continuous occupied
+		# Reset the reference and continue
+		if firstFrame is None or num_continuous > 100 or rolling_avg.average() > 700:
+			if rolling_avg.average() > 700:
+				print(f"Rolling average at time {datetime.now()}")
+				rolling_avg.reset()
+			firstFrame = gray
+			num_continuous = 0
 
-# loop over the frames of the video
-while True:
-	
-	frame = get_frame(vs, args)
-	
-	# if the frame could not be grabbed, then we have reached the end
-	# of the video
-	if frame is None:
-		break
-	
-	gray = set_up_reference(frame)
+			os.chdir("/home/pi/camera-record")
+			print("Reset Reference Frame")
+			continue
+		
+		frameDelta, thresh, cnts = get_contours(firstFrame, gray)
+		
+		text, frame, max_contour = determine_occupied(cnts, frame, args)
+		
+		rolling_avg.add(max_contour)
 
-	# If this is the first frame, or we trigger a number of continuous occupied
-	# Reset the reference and continue
-	if firstFrame is None or num_continuous > 100 or rolling_avg.average() > 700:
-		if rolling_avg.average() > 700:
-			print(f"Rolling average at time {datetime.now()}")
-			rolling_avg.reset()
-		firstFrame = gray
-		num_continuous = 0
+		if text == "Occupied" and num_continuous == 4:
+			# we are now recently occupied. Create a new directory, set it to CWD, and print the name
+			new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
+			os.mkdir(new_filename)
+			os.chdir(new_filename)
+			print("Occupied! New dir " + new_filename)
+			num_continuous += 1
 
-		os.chdir("/home/pi/camera-record")
-		print("Reset Reference Frame")
-		continue
-	
-	frameDelta, thresh, cnts = get_contours(firstFrame, gray)
-	
-	text, frame, max_contour = determine_occupied(cnts, frame, args)
-	
-	rolling_avg.add(max_contour)
+		elif text == "Unoccupied" and num_continuous > 0:
+			# Text is unoccupied now, reset things to unoccupied
+			print("Unoccupied")
+			num_continuous = 0
+			os.chdir("/home/pi/camera-record")
 
-	if text == "Occupied" and num_continuous == 4:
-		# we are now recently occupied. Create a new directory, set it to CWD, and print the name
-		new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
-		os.mkdir(new_filename)
-		os.chdir(new_filename)
-		print("Occupied! New dir " + new_filename)
-		num_continuous += 1
+		elif text == "Occupied":
+			# We are occupied, but dont need to change directory
+			num_continuous += 1
+			print(f"Frame {num_continuous}")
 
-	elif text == "Unoccupied" and num_continuous > 0:
-		# Text is unoccupied now, reset things to unoccupied
-		print("Unoccupied")
-		num_continuous = 0
-		os.chdir("/home/pi/camera-record")
+		# draw the text and timestamp on the frame
+		cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
+			cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+		cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
+			(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+		# Record the frames
+		if text == "Occupied" and num_continuous > 4:
+			cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
+			cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
+			cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
+		i += 1
+		if i > 1000000:
+			i = 0
 
-	elif text == "Occupied":
-		# We are occupied, but dont need to change directory
-		num_continuous += 1
-		print(f"Frame {num_continuous}")
+if __name__ == "__main__":
+	# construct the argument parser and parse the arguments
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-v", "--video", help="path to the video file")
+	ap.add_argument("-a", "--min-area", type=int, default=800, help="minimum area size")
+	args = vars(ap.parse_args())
+	# if the video argument is None, then we are reading from webcam
+	if args.get("video", None) is None:
+		vs = VideoStream(src=0).start()
+		time.sleep(2.0)
+	# otherwise, we are reading from a video file
+	else:
+		vs = cv2.VideoCapture(args["video"])
 
-	# draw the text and timestamp on the frame
-	cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
-		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-	cv2.putText(frame, datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
-		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-	# Record the frames
-	if text == "Occupied" and num_continuous > 4:
-		cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
-		cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
-		cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
-	i += 1
-	if i > 1000000:
-		i = 0
 
-# cleanup the camera and close any open windows
-vs.stop() if args.get("video", None) is None else vs.release()
-cv2.destroyAllWindows()
+	# cleanup the camera and close any open windows
+	vs.stop() if args.get("video", None) is None else vs.release()
+	cv2.destroyAllWindows()
