@@ -97,7 +97,7 @@ def record(stop_time):
 	rolling_avg = RollingAverage()
 
 	# loop over the frames of the stream until the stop time is reached
-	while stop_time > datetime.now().time():
+	while not stop_time.hour == datetime.now().hour and stop_time.minute == datetime.now().minute:
 		frame = get_frame(vs)
 		
 		# if the frame could not be grabbed, then we have reached the end
