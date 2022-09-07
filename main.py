@@ -7,7 +7,7 @@ import pytz
 from record import record
 from stream import serve
 MINUTES_BEFORE_SUNRISE = 45
-HOUR_TO_STOP_SERVER = 18
+HOUR_TO_STOP_SERVER = 1
 if __name__ == '__main__':
 
     # Get time of sunrise to calculate when to stop recording

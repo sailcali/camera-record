@@ -110,9 +110,9 @@ def serve(shutdown_time):
 
 def shutdown_loop(shutdown_time):
     dt = datetime.datetime.now()
-    stop_time = datetime.datetime(int(dt.strftime('%Y')),int(dt.strftime('%m')),int(dt.strftime('%d')),shutdown_time,0,0,0).time()
+    stop_time = datetime.datetime(int(dt.strftime('%Y')),int(dt.strftime('%m')),int(dt.strftime('%d')),1,0,0,0).time()
     while True:
-        if datetime.datetime.now().time() > stop_time:
+        if datetime.datetime.now().time() < stop_time:
             my_server.shutdown()
             my_server.server_close()
             break
