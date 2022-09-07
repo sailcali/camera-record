@@ -8,7 +8,7 @@ import time
 import cv2
 import os
 from collections import UserList
-
+DEFAULT_AREA = 800
 class RollingAverage:
 	def __init__(self):
 		self.numbers = []
@@ -63,7 +63,7 @@ def get_contours(firstFrame, gray):
 		cv2.CHAIN_APPROX_SIMPLE)
 	return frameDelta, thresh, imutils.grab_contours(cnts)
 
-def determine_occupied(cnts, frame, args):
+def determine_occupied(cnts, frame, min_area=DEFAULT_AREA):
 	text = "Unoccupied"
 	max_contour = 0
 	# loop over the contours, add "occupied" if any contours are above the baseline
@@ -72,7 +72,7 @@ def determine_occupied(cnts, frame, args):
 		if max_contour < cnt_size:
 			max_contour = cnt_size
 		# if the contour is too small, ignore it
-		if cnt_size < args["min_area"]:
+		if cnt_size < min_area:
 			continue
 		# compute the bounding box for the contour, draw it on the frame,
 		# and update the text
@@ -122,7 +122,7 @@ def record(stop_time):
 		
 		frameDelta, thresh, cnts = get_contours(firstFrame, gray)
 		
-		text, frame, max_contour = determine_occupied(cnts, frame, args)
+		text, frame, max_contour = determine_occupied(cnts, frame)
 		
 		rolling_avg.add(max_contour)
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-v", "--video", help="path to the video file")
-	ap.add_argument("-a", "--min-area", type=int, default=800, help="minimum area size")
+	ap.add_argument("-a", "--min-area", type=int, default=DEFAULT_AREA, help="minimum area size")
 	args = vars(ap.parse_args())
 	# if the video argument is None, then we are reading from webcam
 	if args.get("video", None) is None:
@@ -208,7 +208,7 @@ if __name__ == "__main__":
 		
 		frameDelta, thresh, cnts = get_contours(firstFrame, gray)
 		
-		text, frame, max_contour = determine_occupied(cnts, frame, args)
+		text, frame, max_contour = determine_occupied(cnts, frame, args["min_area"])
 		
 		rolling_avg.add(max_contour)
 
