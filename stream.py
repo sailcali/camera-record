@@ -10,7 +10,8 @@ import socketserver
 from threading import Condition
 from http import server
 import threading
-from main import record
+from record import record
+import datetime
 
 
 PAGE="""\
@@ -89,21 +90,31 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-def serve():
-        try:
-            address = ('', 8000)
-            server = StreamingServer(address, StreamingHandler)
-            server.serve_forever()
-        finally:
-            camera.stop_recording()
-
-if __name__ == "__main__":
+def serve(shutdown_time):
+    global camera
+    global my_server
     with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
+        global output
         output = StreamingOutput()
         #Uncomment the next line to change your Pi's Camera rotation (in degrees)
         #camera.rotation = 90
         camera.start_recording(output, format='mjpeg')
-        t1 = threading.Thread(target=serve)
-        t2 = threading.Thread(target=record, args=(output,))
-        t1.start()
-        t2.start()
+        try:
+            address = ('', 8000)
+            my_server = StreamingServer(address, StreamingHandler)
+            threading.Thread(target=shutdown_loop, args=(shutdown_time,)).start()
+            my_server.serve_forever()
+        finally:
+            camera.stop_recording()
+
+def shutdown_loop(shutdown_time):
+    stop_time = datetime.datetime(0,0,0,shutdown_time,0,0,0).time()
+    while True:
+        if datetime.datetime.now().time() > stop_time:
+            my_server.shutdown()
+            my_server.server_close()
+
+if __name__ == "__main__":
+    
+    serve()
+
