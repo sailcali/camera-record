@@ -18,5 +18,5 @@ if __name__ == '__main__':
     print("Serving")
     serve(HOUR_TO_STOP_SERVER)
     print('Server Shutdown at time ' + datetime.strftime(datetime.now(), '%H-%M-%S'))
-    record(sunrise)
+    record(sunrise.time())
     print('Recording Stopped at time ' + datetime.strftime(datetime.now(), '%H-%M-%S'))
