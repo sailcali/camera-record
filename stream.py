@@ -108,7 +108,8 @@ def serve(shutdown_time):
             camera.stop_recording()
 
 def shutdown_loop(shutdown_time):
-    stop_time = datetime.datetime(0,0,0,shutdown_time,0,0,0).time()
+    dt = datetime.datetime.now()
+    stop_time = datetime.datetime(int(dt.strftime('%Y')),int(dt.strftime('%m')),int(dt.strftime('%d')),shutdown_time,0,0,0).time()
     while True:
         if datetime.datetime.now().time() > stop_time:
             my_server.shutdown()
