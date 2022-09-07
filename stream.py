@@ -102,7 +102,8 @@ def serve(shutdown_time):
         try:
             address = ('', 8000)
             my_server = StreamingServer(address, StreamingHandler)
-            threading.Thread(target=shutdown_loop, args=(shutdown_time,)).start()
+            thread = threading.Thread(target=shutdown_loop, args=(shutdown_time,))
+            thread.start()
             my_server.serve_forever()
         finally:
             camera.stop_recording()
@@ -114,6 +115,7 @@ def shutdown_loop(shutdown_time):
         if datetime.datetime.now().time() > stop_time:
             my_server.shutdown()
             my_server.server_close()
+            break
 
 if __name__ == "__main__":
     

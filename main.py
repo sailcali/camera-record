@@ -14,9 +14,9 @@ if __name__ == '__main__':
     city = lookup("San Diego", database())
     s = sun(city.observer, date=date.today())
     sunrise = s['sunrise']
-    sunrise = sunrise.astimezone(tz=pytz.timezone("US/Pacific"))
+    sunrise = sunrise.astimezone(tz=pytz.timezone("US/Pacific")) - timedelta(minutes=MINUTES_BEFORE_SUNRISE)
     print("Serving")
     serve(HOUR_TO_STOP_SERVER)
     print('Server Shutdown at time ' + datetime.strftime(datetime.now(), '%H-%M-%S'))
-    record(sunrise.time() - timedelta(minutes=MINUTES_BEFORE_SUNRISE))
+    record(sunrise)
     print('Recording Stopped at time ' + datetime.strftime(datetime.now(), '%H-%M-%S'))
