@@ -8,7 +8,7 @@ from record import record
 from stream import serve
 import logging
 
-logging.basicConfig(filename='app.log', format='%(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='app.log', encoding='utf-8', level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 MINUTES_BEFORE_SUNRISE = 45
 HOUR_TO_STOP_SERVER = 22
 
