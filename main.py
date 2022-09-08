@@ -7,6 +7,9 @@ import pytz
 from record import record
 from stream import serve
 import logging
+import os
+
+os.chdir("/home/pi/camera-record")
 
 logging.basicConfig(filename='app.log', encoding='utf-8', level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 MINUTES_BEFORE_SUNRISE = 45
