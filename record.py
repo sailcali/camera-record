@@ -8,17 +8,21 @@ import time
 import cv2
 import os
 from collections import UserList
+import logging
+
 DEFAULT_AREA = 800
 class RollingAverage:
 	def __init__(self):
 		self.numbers = []
 		self.length = 0
+		self.last = 0
 
 	def add(self, number):
 		if self.length > 100:
 			self.numbers.pop(0)
 			self.length -= 1
 		self.numbers.append(number)
+		self.last = number
 		self.length += 1
 	
 	def average(self):
@@ -76,7 +80,6 @@ def determine_occupied(cnts, frame, min_area=DEFAULT_AREA):
 			continue
 		# compute the bounding box for the contour, draw it on the frame,
 		# and update the text
-		print(cnt_size)
 		(x, y, w, h) = cv2.boundingRect(c)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 		text = "Occupied"
@@ -111,13 +114,13 @@ def record(stop_time):
 		# Reset the reference and continue
 		if firstFrame is None or num_continuous > 100 or rolling_avg.average() > 700:
 			if rolling_avg.average() > 700:
-				print(f"Rolling average at time {datetime.now()}")
+				logging.debug(f"Rolling average at time {datetime.now()}")
 				rolling_avg.reset()
 			firstFrame = gray
 			num_continuous = 0
 
 			os.chdir("/home/pi/camera-record")
-			print("Reset Reference Frame")
+			logging.debug("Reset Reference Frame")
 			continue
 		
 		frameDelta, thresh, cnts = get_contours(firstFrame, gray)
@@ -131,19 +134,19 @@ def record(stop_time):
 			new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
 			os.mkdir(new_filename)
 			os.chdir(new_filename)
-			print("Occupied! New dir " + new_filename)
+			logging.debug("Occupied! New dir " + new_filename)
 			num_continuous += 1
 
 		elif text == "Unoccupied" and num_continuous > 0:
 			# Text is unoccupied now, reset things to unoccupied
-			print("Unoccupied")
+			logging.debug("Unoccupied")
 			num_continuous = 0
 			os.chdir("/home/pi/camera-record")
 
 		elif text == "Occupied":
 			# We are occupied, but dont need to change directory
 			num_continuous += 1
-			print(f"Frame {num_continuous}")
+			logging.debug(f"Frame {num_continuous}")
 
 		# draw the text and timestamp on the frame
 		cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
