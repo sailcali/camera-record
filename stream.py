@@ -113,11 +113,10 @@ def shutdown_loop(shutdown_hour):
     stop_time = datetime.datetime(dt.year,dt.month,dt.day,shutdown_hour,0,0,0)
     while True:
         time.sleep(15)
-        break
         # if datetime.datetime.now().hour == stop_time.hour:
-        #     my_server.shutdown()
-        #     my_server.server_close()
-        #     break
+        my_server.shutdown()
+        my_server.server_close()
+        break
 
 if __name__ == "__main__":
     
