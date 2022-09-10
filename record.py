@@ -165,6 +165,7 @@ def record(stop_time):
 			i = 0
 	# cleanup the camera and close any open windows
 	vs.stop()
+	vs.stream.release()
 
 if __name__ == "__main__":
 	# construct the argument parser and parse the arguments
