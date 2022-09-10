@@ -121,6 +121,7 @@ def record(stop_time):
 			num_continuous = 0
 
 			os.chdir("/home/pi/camera-record")
+			print("Reset Reference Frame")
 			logging.debug("Reset Reference Frame")
 			continue
 		
