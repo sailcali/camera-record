@@ -161,7 +161,10 @@ def record(stop_time):
 		i += 1
 		if i > 1000000:
 			i = 0
-
+	# cleanup the camera and close any open windows
+	vs.stop()
+	vs.stream.release()
+	
 if __name__ == "__main__":
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
