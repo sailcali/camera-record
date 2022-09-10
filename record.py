@@ -164,7 +164,7 @@ def record(stop_time):
 		if i > 1000000:
 			i = 0
 	# cleanup the camera and close any open windows
-	vs.stop() if args.get("video", None) is None else vs.release()
+	vs.stop()
 	cv2.destroyAllWindows()
 
 if __name__ == "__main__":
