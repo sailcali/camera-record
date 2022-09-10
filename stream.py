@@ -12,7 +12,7 @@ from http import server
 import threading
 from record import record
 import datetime
-
+import time
 
 PAGE="""\
 <html>
@@ -112,10 +112,12 @@ def shutdown_loop(shutdown_hour):
     dt = datetime.datetime.now()
     stop_time = datetime.datetime(dt.year,dt.month,dt.day,shutdown_hour,0,0,0)
     while True:
-        if datetime.datetime.now().hour == stop_time.hour:
-            my_server.shutdown()
-            my_server.server_close()
-            break
+        time.sleep(15)
+        break
+        # if datetime.datetime.now().hour == stop_time.hour:
+        #     my_server.shutdown()
+        #     my_server.server_close()
+        #     break
 
 if __name__ == "__main__":
     
