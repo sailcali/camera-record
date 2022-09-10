@@ -163,6 +163,9 @@ def record(stop_time):
 		i += 1
 		if i > 1000000:
 			i = 0
+	# cleanup the camera and close any open windows
+	vs.stop() if args.get("video", None) is None else vs.release()
+	cv2.destroyAllWindows()
 
 if __name__ == "__main__":
 	# construct the argument parser and parse the arguments
