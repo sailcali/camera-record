@@ -131,7 +131,7 @@ def record(stop_time):
 
 		if text == "Occupied" and num_continuous == 4:
 			# we are now recently occupied. Create a new directory, set it to CWD, and print the name
-			new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
+			new_filename = f"/home/pi/camera-record/recording-" + datetime.strftime(datetime.now(), "%d-%b-%I-%M-%S")
 			os.mkdir(new_filename)
 			os.chdir(new_filename)
 			logging.debug("Occupied! New dir " + new_filename)
@@ -156,8 +156,9 @@ def record(stop_time):
 		# Record the frames
 		if text == "Occupied" and num_continuous > 4:
 			cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
-			cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
-			cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
+			# Only for debug
+			# cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
+			# cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
 		i += 1
 		if i > 1000000:
 			i = 0
@@ -220,7 +221,7 @@ if __name__ == "__main__":
 
 		if text == "Occupied" and num_continuous == 4:
 			# we are now recently occupied. Create a new directory, set it to CWD, and print the name
-			new_filename = f"/home/pi/camera-record/recording{i}-" + datetime.strftime(datetime.now(), "%I-%M-%S")
+			new_filename = f"/home/pi/camera-record/recording-" + datetime.strftime(datetime.now(), "%d-%b-%I-%M-%S")
 			os.mkdir(new_filename)
 			os.chdir(new_filename)
 			print("Occupied! New dir " + new_filename)
@@ -245,8 +246,9 @@ if __name__ == "__main__":
 		# Record the frames
 		if text == "Occupied" and num_continuous > 4:
 			cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
-			cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
-			cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
+			# Only for debug
+			# cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
+			# cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
 		i += 1
 		if i > 1000000:
 			i = 0
