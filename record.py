@@ -9,6 +9,7 @@ import cv2
 import os
 from collections import UserList
 import logging
+from discord_bot import send_to_discord
 
 DEFAULT_AREA = 800
 class RollingAverage:
@@ -155,7 +156,11 @@ def record(stop_time):
 			(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 		# Record the frames
 		if text == "Occupied" and num_continuous > 4:
-			cv2.imwrite(f"SecurityFeedOccupied{i}.jpg", frame)
+			filename = f"SecurityFeedOccupied{i}.jpg"
+			cv2.imwrite(filename, frame)
+			if num_continuous == 5:
+				send_to_discord(filename)
+			
 			# Only for debug
 			# cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
 			# cv2.imwrite(f"FrameDeltaOccupied{i}.jpg", frameDelta)
