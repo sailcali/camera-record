@@ -3,24 +3,22 @@ import os
 import discord
 from discord.ext import commands
 
-def send_to_discord(filename):
+def send_to_discord(filename, token, channel_id):
     
-    TOKEN = os.getenv('DISCORD_TOKEN')
-    CAMERA_CHANNEL = int(os.getenv('CAMERA_CHANNEL_ID'))
     client = commands.Bot(command_prefix="+",intents=discord.Intents.default())
 
     @client.event
     async def on_ready():
         # print(f'{client.user} has connected to Discord!')
-        await client.fetch_channel(CAMERA_CHANNEL)
-        channel = client.get_channel(CAMERA_CHANNEL)
+        await client.fetch_channel(channel_id)
+        channel = client.get_channel(channel_id)
         with open(filename, 'rb') as f:
             picture = discord.File(f)
             await channel.send(file=picture)
         await client.close()
         
     try:
-        client.run(TOKEN)
+        client.run(token)
     except RuntimeError:
         print("ok")
 

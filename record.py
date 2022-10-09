@@ -10,6 +10,7 @@ import os
 from collections import UserList
 import logging
 from discord_bot import send_to_discord
+from dotenv import load_dotenv
 
 DEFAULT_AREA = 800
 class RollingAverage:
@@ -87,7 +88,9 @@ def determine_occupied(cnts, frame, min_area=DEFAULT_AREA):
 	return text, frame, max_contour
 
 def record(stop_time):
-	
+	load_dotenv()
+	TOKEN = os.getenv('DISCORD_TOKEN')
+	CAMERA_CHANNEL = int(os.getenv('CAMERA_CHANNEL_ID'))
 	vs = VideoStream(src=0).start()
 	time.sleep(2.0)
 	
@@ -159,7 +162,7 @@ def record(stop_time):
 			filename = f"SecurityFeedOccupied{i}.jpg"
 			cv2.imwrite(filename, frame)
 			if num_continuous == 5:
-				send_to_discord(filename)
+				send_to_discord(filename, TOKEN, CAMERA_CHANNEL)
 			
 			# Only for debug
 			# cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
