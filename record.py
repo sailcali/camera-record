@@ -9,7 +9,8 @@ import cv2
 import os
 from collections import UserList
 import logging
-from discord_bot import send_to_discord
+from discordwebhook import Discord
+
 from dotenv import load_dotenv
 
 DEFAULT_AREA = 800
@@ -89,8 +90,7 @@ def determine_occupied(cnts, frame, min_area=DEFAULT_AREA):
 
 def record(stop_time):
 	load_dotenv()
-	TOKEN = os.getenv('DISCORD_TOKEN')
-	CAMERA_CHANNEL = int(os.getenv('CAMERA_CHANNEL_ID'))
+
 	vs = VideoStream(src=0).start()
 	time.sleep(2.0)
 	
@@ -162,7 +162,8 @@ def record(stop_time):
 			filename = f"SecurityFeedOccupied{i}.jpg"
 			cv2.imwrite(filename, frame)
 			if num_continuous == 5:
-				send_to_discord(filename, TOKEN, CAMERA_CHANNEL)
+				discord = Discord(url=os.environ.get("CAMERA_CHANNEL_URL"))
+				discord.post(file={"Frame": open(filename, "rb"),})
 			
 			# Only for debug
 			# cv2.imwrite(f"ThreshOccupied{i}.jpg", thresh)
