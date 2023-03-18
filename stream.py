@@ -90,7 +90,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-def serve(shutdown_hour):
+def serve(shutdown_hour=None):
     global camera
     global my_server
     with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
@@ -102,8 +102,11 @@ def serve(shutdown_hour):
         try:
             address = ('', 8000)
             my_server = StreamingServer(address, StreamingHandler)
-            thread = threading.Thread(target=shutdown_loop, args=(shutdown_hour,))
-            thread.start()
+            # If a shutdown hour is passed to the method, it will shutdown and return at the top of that given hour
+            if shutdown_hour:
+                thread = threading.Thread(target=shutdown_loop, args=(shutdown_hour,))
+                thread.start()
+            # Either way we will stream the server
             my_server.serve_forever()
         finally:
             camera.stop_recording()

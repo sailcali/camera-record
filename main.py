@@ -14,6 +14,8 @@ os.chdir("/home/pi/camera-record")
 logging.basicConfig(filename='app.log', encoding='utf-8', level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 MINUTES_BEFORE_SUNRISE = 45
 HOUR_TO_STOP_SERVER = 22
+# Uncomment below to block the recording function
+HOUR_TO_STOP_SERVER = None
 
 if __name__ == '__main__':
 
